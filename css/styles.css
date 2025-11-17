@@ -850,7 +850,8 @@ ul {
     }
 
     .mission-grid,
-    .footer-grid {
+    .footer-grid,
+    .contact-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
@@ -883,8 +884,12 @@ ul {
     }
 
     .projects-grid,
-    .stories-grid {
-        grid-template-columns: 1fr;
+    .stories-grid,
+    .other-ways-grid,
+    .donation-tiers-grid,
+    .donation-breakdown-grid,
+    .contact-grid {
+        grid-template-columns: 1fr !important;
     }
 
     .footer-bottom {

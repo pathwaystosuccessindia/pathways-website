@@ -17,33 +17,37 @@
     }
 
     // Load component from file
-    async function loadComponent(componentName, targetId) {
-        try {
-            const baseUrl = getBaseUrl();
-            const response = await fetch(`${baseUrl}components/${componentName}.html`);
+    function loadComponent(componentName, targetId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const baseUrl = getBaseUrl();
+                const response = await fetch(`${baseUrl}components/${componentName}.html`);
 
-            if (!response.ok) {
-                throw new Error(`Failed to load ${componentName}`);
-            }
-
-            let html = await response.text();
-
-            // Replace {baseUrl} placeholders with actual base URL
-            html = html.replace(/{baseUrl}/g, baseUrl);
-
-            // Insert the component
-            const target = document.getElementById(targetId);
-            if (target) {
-                target.innerHTML = html;
-
-                // If it's the header, set active page
-                if (componentName === 'header') {
-                    setActivePage();
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${componentName}`);
                 }
+
+                let html = await response.text();
+
+                // Replace {baseUrl} placeholders with actual base URL
+                html = html.replace(/{baseUrl}/g, baseUrl);
+
+                // Insert the component
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.innerHTML = html;
+
+                    // If it's the header, set active page
+                    if (componentName === 'header') {
+                        setActivePage();
+                    }
+                }
+                resolve();
+            } catch (error) {
+                console.error(`Error loading ${componentName}:`, error);
+                reject(error);
             }
-        } catch (error) {
-            console.error(`Error loading ${componentName}:`, error);
-        }
+        });
     }
 
     // Set active page in navigation
@@ -68,7 +72,40 @@
 
     function init() {
         // Load header and footer
-        loadComponent('header', 'header-placeholder');
+        loadComponent('header', 'header-placeholder').then(() => {
+            // Initialize mobile menu after header is loaded
+            initMobileMenu();
+        });
         loadComponent('footer', 'footer-placeholder');
+    }
+
+    // Mobile menu initialization
+    function initMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        if (mobileMenuToggle && navMenu) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuToggle.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = navMenu.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuToggle.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenuToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                    mobileMenuToggle.classList.remove('active');
+                    navMenu.classList.remove('active');
+                }
+            });
+        }
     }
 })();
